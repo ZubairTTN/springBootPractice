@@ -22,6 +22,7 @@ public class StudentService {
     public Student createStudent(Student studentEntry)
     {
         System.out.println("Inside Student Service");
+        studentEntry.setDeleted(false);
         Student studentResponse = studentRepository.save(studentEntry);
         System.out.println("Exiting Student Service");
         return studentResponse;
@@ -30,7 +31,7 @@ public class StudentService {
 //    get student entry
     public Student getStudent(Long id)
     {
-        Optional<Student> studentResponse =  studentRepository.findById(id);
+        Optional<Student> studentResponse =  studentRepository.findByIdAndDeletedIsFalse(id);
         if(studentResponse.isPresent())
         {
             return studentResponse.get();
@@ -43,14 +44,14 @@ public class StudentService {
 //    get all student entries
     public List<Student> getAllStudent()
     {
-        List<Student> studentsList = studentRepository.findAll();
+        List<Student> studentsList = studentRepository.findAllByDeletedIsFalse();
         return studentsList;
     }
 
 //    update Student Entry
     public Student updateStudent(Long id, Student student)
     {
-        Optional<Student> existingStudent = studentRepository.findById(id);
+        Optional<Student> existingStudent = studentRepository.findByIdAndDeletedIsFalse(id);
         if(existingStudent.isEmpty())
         {
             return null;
@@ -62,21 +63,50 @@ public class StudentService {
             studentToSave.setEmail(student.getEmail());
             studentToSave.setSubject(student.getSubject());
             studentToSave.setRollNo(student.getRollNo());
+            studentToSave.setDeleted(false);
             return studentRepository.save(studentToSave);
         }
     }
 
-//    delete student Entry
-    public Boolean deleteStudent(Long id)
+    // Permanently delete an active student
+    public Boolean deleteStudent(Long id) {
+        Optional<Student> existingStudent =
+                studentRepository.findByIdAndDeletedIsFalse(id);
+
+        if (existingStudent.isEmpty()) {
+            return false;
+        }
+
+        studentRepository.delete(existingStudent.get());
+        return true;
+    }
+
+//    delete all entries
+    public Boolean deleteAll()
     {
-        boolean studentToDelete = studentRepository.existsById(id);
-        if(!studentToDelete)
+        try {
+            studentRepository.deleteAll();
+            return true;
+    } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
+}
+
+//    delete entry Softly
+    public Boolean deleteStudentSoftly(Long id)
+    {
+        Optional<Student> existingStudent = studentRepository.findByIdAndDeletedIsFalse(id);
+        if(existingStudent.isEmpty())
         {
             return false;
         }
         else {
-            studentRepository.deleteById(id);
+            Student studentToSave = existingStudent.get();
+            studentToSave.setDeleted(true);
+            studentRepository.save(studentToSave);
             return true;
         }
     }
+
 }

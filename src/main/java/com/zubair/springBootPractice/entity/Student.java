@@ -1,21 +1,22 @@
 package com.zubair.springBootPractice.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
+@Table(name = "student")
 public class Student {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // Primary Key
+
+    @Column(name = "student_name", nullable = false, length = 100)
     private String name;
     private int age;
     private String email;
     private int rollNo;
     private String subject;
+    private Boolean deleted;
 
     public String getName() {
         return name;
@@ -63,5 +64,13 @@ public class Student {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Boolean getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(Boolean deleted) {
+        this.deleted = deleted;
     }
 }
