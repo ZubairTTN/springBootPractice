@@ -1,6 +1,8 @@
 package com.zubair.springBootPractice.service;
 
+import com.zubair.springBootPractice.entity.Department;
 import com.zubair.springBootPractice.entity.Student;
+import com.zubair.springBootPractice.repository.DepartmentRepository;
 import com.zubair.springBootPractice.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,17 +13,25 @@ import java.util.Optional;
 @Service
 public class StudentService {
     private StudentRepository studentRepository;
+    private DepartmentRepository departmentRepository;
 
     @Autowired
-    public StudentService(StudentRepository studentRepository)
+    public StudentService(StudentRepository studentRepository, DepartmentRepository departmentRepository)
     {
         this.studentRepository = studentRepository;
+        this.departmentRepository = departmentRepository;
     }
 
 //    Create Student Entry using studentRepository
     public Student createStudent(Student studentEntry)
     {
         System.out.println("Inside Student Service");
+        Department department = resolveDepartment(studentEntry);
+        if(department == null)
+        {
+            return null;
+        }
+        studentEntry.setDepartment(department);
         studentEntry.setDeleted(false);
         Student studentResponse = studentRepository.save(studentEntry);
         System.out.println("Exiting Student Service");
@@ -64,6 +74,15 @@ public class StudentService {
             studentToSave.setSubject(student.getSubject());
             studentToSave.setRollNo(student.getRollNo());
             studentToSave.setDeleted(false);
+            if(student.getDepartment() != null)
+            {
+                Department department = resolveDepartment(student);
+                if(department == null)
+                {
+                    return null;
+                }
+                studentToSave.setDepartment(department);
+            }
             return studentRepository.save(studentToSave);
         }
     }
@@ -107,6 +126,15 @@ public class StudentService {
             studentRepository.save(studentToSave);
             return true;
         }
+    }
+
+    private Department resolveDepartment(Student student)
+    {
+        if(student.getDepartment() == null || student.getDepartment().getId() == null)
+        {
+            return null;
+        }
+        return departmentRepository.findById(student.getDepartment().getId()).orElse(null);
     }
 
 }

@@ -24,6 +24,10 @@ public class StudentController {
     {
         Student createdStudent = studentService.createStudent(studentEntry);
 //        System.out.println("Exiting Student Controller");
+        if(createdStudent == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(createdStudent);
