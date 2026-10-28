@@ -4,6 +4,7 @@ import com.zubair.springBootPractice.entity.Student;
 import com.zubair.springBootPractice.service.StudentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.web.server.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -115,6 +116,12 @@ public class StudentController {
         else {
             return ResponseEntity.status(HttpStatus.OK).body("The Required Entry is Deleted Softly...");
         }
+    }
+
+    @GetMapping("/csrf")
+    public CsrfToken getToken(CsrfToken csrfToken)
+    {
+        return csrfToken;
     }
 
 }
